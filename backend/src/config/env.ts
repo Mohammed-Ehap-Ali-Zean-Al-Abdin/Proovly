@@ -18,6 +18,7 @@ const EnvSchema = z.object({
   HEDERA_ACCOUNT_ID: z.string().optional(),
   HEDERA_PRIVATE_KEY: z.string().optional(),
   HCS_TOPIC_ID: z.string().optional(),
+  OFD_TOKEN_ID: z.string().optional(),
   HEDERA_MIRROR_BASE_URL: z.string().optional(),
   ANALYTICS_CONTRACT_ID: z.string().optional(),
 

@@ -9,25 +9,66 @@ const CACHE_TTL = 60; // seconds
 
 const router = Router();
 
-router.get('/summary', async (req, res) => {
-  const { from, to, region } = req.query as Record<string, string>;
-  // Try cache first
-  const key = `analytics:summary:${from || ''}:${to || ''}:${region || ''}`;
+router.get('/summary', async (req, res, next) => {
   try {
-    const cached = await cache.get(key);
-    if (cached) return res.json(JSON.parse(cached));
-  } catch (err) {
-    // ignore cache errors
-  }
+    const { from, to, region } = req.query as Record<string, string>;
+    // Try cache first
+    const key = `analytics:summary:${from || ''}:${to || ''}:${region || ''}`;
+    try {
+      const cached = await cache.get(key);
+      if (cached) return res.json(JSON.parse(cached));
+    } catch (err) {
+      // ignore cache errors
+    }
 
-  const result = { totalDonations: 0, byRegion: region ? [{ region, amount: 0 }] : [], chainVerifiedPct: 0, from, to };
-  // Store in cache
-  try {
-    await cache.set(key, JSON.stringify(result), CACHE_TTL);
+    // Import DonationModel dynamically to avoid circular dependency
+    const { DonationModel } = await import('../models/Donation.js');
+    
+    // Build query filters
+    const filter: any = {};
+    if (from || to) {
+      filter.createdAt = {};
+      if (from) filter.createdAt.$gte = new Date(from);
+      if (to) filter.createdAt.$lte = new Date(to);
+    }
+    
+    // Get total donations and sum
+    const donations = await DonationModel.find(filter).lean();
+    const totalDonations = donations.reduce((sum, d) => sum + (d.amountUSD || 0), 0);
+    
+    // Calculate chain verification percentage (donations with hederaHcsTxId)
+    const chainVerified = donations.filter(d => d.hederaHcsTxId).length;
+    const chainVerifiedPct = donations.length > 0 ? chainVerified / donations.length : 0;
+    
+    // Group by region if needed (for now, use campaignId as proxy for region)
+    const byRegion: { region: string; amount: number }[] = [];
+    if (region) {
+      const regionTotal = donations
+        .filter(d => d.campaignId?.includes(region))
+        .reduce((sum, d) => sum + (d.amountUSD || 0), 0);
+      byRegion.push({ region, amount: regionTotal });
+    }
+
+    const result = { 
+      totalDonations, 
+      byRegion, 
+      chainVerifiedPct, 
+      from, 
+      to,
+      totalCount: donations.length,
+      chainVerifiedCount: chainVerified
+    };
+    
+    // Store in cache
+    try {
+      await cache.set(key, JSON.stringify(result), CACHE_TTL);
+    } catch (err) {
+      // ignore
+    }
+    res.json(result);
   } catch (err) {
-    // ignore
+    next(err);
   }
-  res.json(result);
 });
 
 router.post('/generate-daily-hash', requireAuth(['admin']), async (_req, res) => {

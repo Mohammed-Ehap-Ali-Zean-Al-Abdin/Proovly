@@ -53,18 +53,51 @@ export default function AnalyticsPage() {
   if (loading || !user) return null
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-8 space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>Analytics</CardTitle>
-          <CardDescription>Summary and breakdown</CardDescription>
+    <div className="mx-auto max-w-7xl px-6 py-10 space-y-8">
+      {/* Page Header */}
+      <div className="animate-fade-in">
+        <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-2">
+          Analytics Dashboard
+        </h1>
+        <p className="text-slate-600">Track donations, transparency metrics, and blockchain verification</p>
+      </div>
+
+      <Card className="border-0 shadow-xl bg-white/80 backdrop-blur-sm animate-slide-in-right">
+        <CardHeader className="border-b bg-gradient-to-r from-slate-50 to-blue-50">
+          <CardTitle className="text-xl">Summary & Breakdown</CardTitle>
+          <CardDescription>Filter and analyze donation data</CardDescription>
         </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-4">
-            <Input placeholder="From (YYYY-MM-DD)" value={from} onChange={(e) => setFrom(e.target.value)} />
-            <Input placeholder="To (YYYY-MM-DD)" value={to} onChange={(e) => setTo(e.target.value)} />
-            <Input placeholder="Region" value={region} onChange={(e) => setRegion(e.target.value)} />
-            <Button onClick={fetchSummary}>Refresh</Button>
+        <CardContent className="pt-6">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <Input 
+              placeholder="From (YYYY-MM-DD)" 
+              value={from} 
+              onChange={(e) => setFrom(e.target.value)}
+              className="h-11 border-slate-300 focus:border-blue-500 focus:ring-blue-500" 
+            />
+            <Input 
+              placeholder="To (YYYY-MM-DD)" 
+              value={to} 
+              onChange={(e) => setTo(e.target.value)}
+              className="h-11 border-slate-300 focus:border-blue-500 focus:ring-blue-500" 
+            />
+            <Input 
+              placeholder="Region" 
+              value={region} 
+              onChange={(e) => setRegion(e.target.value)}
+              className="h-11 border-slate-300 focus:border-blue-500 focus:ring-blue-500" 
+            />
+            <Button 
+              onClick={fetchSummary}
+              className="h-11 bg-gradient-to-r from-blue-600 to-indigo-600 hover:shadow-lg hover:shadow-blue-500/50 transition-all duration-200"
+            >
+              <span className="flex items-center gap-2">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                Refresh
+              </span>
+            </Button>
           </div>
           {summary && (
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">

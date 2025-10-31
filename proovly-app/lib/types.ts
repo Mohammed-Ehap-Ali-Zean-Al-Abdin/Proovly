@@ -63,6 +63,10 @@ export interface CreateDonationRequest {
 export interface CreateDonationResponse {
   donationId: string
   status: DonationStatus
+  hederaHcsTxId?: string
+  htsTxId?: string
+  mirrorUrl?: string
+  message?: string
 }
 
 // Campaign

@@ -20,6 +20,12 @@ export function CreateDonationForm({ role, userId }: CreateDonationFormProps) {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
+  const [hederaDetails, setHederaDetails] = useState<{
+    txId: string
+    htsTxId?: string
+    mirrorUrl: string
+    message?: string
+  } | null>(null)
   const [ngos, setNgos] = useState<User[]>([])
   const [loadingNgos, setLoadingNgos] = useState(false)
   const [formData, setFormData] = useState({
@@ -73,13 +79,23 @@ export function CreateDonationForm({ role, userId }: CreateDonationFormProps) {
       }
 
       // Call backend via typed API client
-      await apiClient.donations.create({
+      const response = await apiClient.donations.create({
         donorId: userId,
         // Using "cause" as a simple campaign identifier for MVP
         campaignId: formData.cause || "general",
         amountUSD: Number(formData.amount),
         currency: "USD",
       })
+
+      // Extract Hedera transaction details from response
+      if (response.hederaHcsTxId && response.mirrorUrl) {
+        setHederaDetails({
+          txId: response.hederaHcsTxId,
+          htsTxId: response.htsTxId,
+          mirrorUrl: response.mirrorUrl,
+          message: response.message,
+        })
+      }
 
       setSuccess(true)
       setFormData({
@@ -89,8 +105,11 @@ export function CreateDonationForm({ role, userId }: CreateDonationFormProps) {
         ngoId: "",
       })
 
-      // Reset form after 2 seconds
-      setTimeout(() => setSuccess(false), 2000)
+      // Keep success message visible longer to show Hedera details
+      setTimeout(() => {
+        setSuccess(false)
+        setHederaDetails(null)
+      }, 10000)
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred")
     } finally {
@@ -114,7 +133,40 @@ export function CreateDonationForm({ role, userId }: CreateDonationFormProps) {
 
         {success && (
           <Alert className="bg-green-50 border-green-200">
-            <AlertDescription className="text-green-800">Donation created successfully!</AlertDescription>
+            <AlertDescription className="text-green-800">
+              <div className="space-y-2">
+                <p className="font-semibold">✅ Donation created successfully!</p>
+                {hederaDetails && (
+                  <div className="text-sm space-y-2">
+                    <p className="text-green-700">{hederaDetails.message}</p>
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-gray-600">HCS Proof:</span>
+                        <span className="font-mono text-xs bg-green-100 px-2 py-1 rounded">
+                          {hederaDetails.txId}
+                        </span>
+                        <a
+                          href={hederaDetails.mirrorUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-600 hover:text-blue-800 underline text-xs"
+                        >
+                          View on Explorer →
+                        </a>
+                      </div>
+                      {hederaDetails.htsTxId && (
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs text-gray-600">Token:</span>
+                          <span className="font-mono text-xs bg-purple-100 px-2 py-1 rounded">
+                            {hederaDetails.htsTxId}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </AlertDescription>
           </Alert>
         )}
 
