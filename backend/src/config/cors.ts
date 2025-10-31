@@ -11,9 +11,12 @@ import { env } from './env.js';
 
 const defaultOrigins = [
   'https://proovly.app',
+  'https://www.proovly.app',
   'https://api.proovly.app',
   'https://proovly.cloud',
+  'https://www.proovly.cloud',
   'https://proovly.org',
+  'https://www.proovly.org',
   // Common dev origins
   'http://localhost:3000',
   'http://localhost:3001',
@@ -42,7 +45,14 @@ function isAllowedOrigin(origin: string): boolean {
     // Allow localhost by default for dev ports
     if (hostname === 'localhost' || hostname === '127.0.0.1') return true;
 
-    // Support basic wildcard hosts like '*.vercel.app'
+    // Allow 'www.' variant when apex domain is explicitly allowed
+    if (hostname.startsWith('www.')) {
+      const hostNoWww = hostname.slice(4);
+      const originNoWww = `${url.protocol}//${hostNoWww}`;
+      if (allowedOrigins.includes(originNoWww)) return true;
+    }
+
+    // Support basic wildcard hosts like '*.vercel.app' or '*.proovly.app'
     if (wildcardHosts.some((suffix) => hostname.endsWith(suffix))) return true;
 
     return false;
