@@ -1,4 +1,5 @@
 import Link from "next/link"
+import { Suspense } from "react"
 import { SignupForm } from "@/components/auth/signup-form"
 
 export default function SignupPage() {
@@ -18,7 +19,9 @@ export default function SignupPage() {
             <p className="text-slate-600">Join Proovly and start making an impact</p>
           </div>
 
-          <SignupForm />
+          <Suspense fallback={<div className="text-slate-500 text-sm">Loading form…</div>}>
+            <SignupForm />
+          </Suspense>
         </div>
       </div>
     </div>
