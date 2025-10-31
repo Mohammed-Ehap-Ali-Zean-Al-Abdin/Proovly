@@ -20,7 +20,7 @@ interface Report {
 }
 
 interface ReportsListProps {
-  role: "donor" | "organization" | "admin"
+  role: "donor" | "ngo" | "admin"
   userId: string
   refreshTrigger: number
 }

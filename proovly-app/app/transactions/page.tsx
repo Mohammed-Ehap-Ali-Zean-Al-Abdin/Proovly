@@ -52,7 +52,7 @@ export default function TransactionsPage() {
           <p className="text-muted-foreground mt-2">
             {user.role === "donor"
               ? "Track all your donation transactions"
-              : user.role === "organization"
+              : user.role === "ngo"
                 ? "Monitor incoming and outgoing transactions"
                 : "View all platform transactions"}
           </p>

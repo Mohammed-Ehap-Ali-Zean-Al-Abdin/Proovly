@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card"
 import { ArrowUpRight, ArrowDownLeft, TrendingUp, Clock } from "lucide-react"
 
 interface TransactionStatsProps {
-  role: "donor" | "organization" | "admin"
+  role: "donor" | "ngo" | "admin"
 }
 
 export function TransactionStats({ role }: TransactionStatsProps) {
@@ -39,7 +39,7 @@ export function TransactionStats({ role }: TransactionStatsProps) {
         color: "bg-teal-50 text-teal-600",
       },
     ],
-    organization: [
+    ngo: [
       {
         label: "Total Received",
         value: "$245,680",

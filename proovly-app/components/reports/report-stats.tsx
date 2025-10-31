@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card"
 import { FileText, BarChart3, TrendingUp, Clock } from "lucide-react"
 
 interface ReportStatsProps {
-  role: "donor" | "organization" | "admin"
+  role: "donor" | "ngo" | "admin"
 }
 
 export function ReportStats({ role }: ReportStatsProps) {
@@ -39,7 +39,7 @@ export function ReportStats({ role }: ReportStatsProps) {
         color: "bg-teal-50 text-teal-600",
       },
     ],
-    organization: [
+    ngo: [
       {
         label: "Reports Generated",
         value: "45",

@@ -39,7 +39,7 @@ export function DonationStats({ role }: DonationStatsProps) {
         color: "bg-blue-50 text-blue-600",
       },
     ],
-    organization: [
+    ngo: [
       {
         label: "Total Raised",
         value: "$245,680",
@@ -101,7 +101,7 @@ export function DonationStats({ role }: DonationStatsProps) {
     ],
   }
 
-  const currentStats = stats[role === "ngo" ? "organization" : role]
+  const currentStats = stats[role === "ngo" ? "ngo" : role]
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

@@ -57,7 +57,7 @@ export default function SettingsPage() {
             <TabsTrigger value="security">Security</TabsTrigger>
             <TabsTrigger value="notifications">Notifications</TabsTrigger>
             <TabsTrigger value="preferences">Preferences</TabsTrigger>
-            {user.role === "organization" && <TabsTrigger value="billing">Billing</TabsTrigger>}
+            {user.role === "ngo" && <TabsTrigger value="billing">Billing</TabsTrigger>}
           </TabsList>
 
           <TabsContent value="profile" className="space-y-4">
@@ -76,7 +76,7 @@ export default function SettingsPage() {
             <PreferencesSettings user={user} />
           </TabsContent>
 
-          {user.role === "organization" && (
+          {user.role === "ngo" && (
             <TabsContent value="billing" className="space-y-4">
               <BillingSettings user={user} />
             </TabsContent>

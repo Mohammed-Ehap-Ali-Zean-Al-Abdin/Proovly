@@ -26,7 +26,7 @@ export function CreateDonationForm({ role, userId }: CreateDonationFormProps) {
     amount: "",
     cause: "",
     description: "",
-    organizationId: "",
+    ngoId: "",
   })
 
   // Fetch NGOs when component mounts (for donor role)
@@ -43,7 +43,7 @@ export function CreateDonationForm({ role, userId }: CreateDonationFormProps) {
       setNgos(ngoList)
     } catch (err) {
       console.error("Failed to load NGOs:", err)
-      setError("Failed to load organizations. Please try again.")
+      setError("Failed to load ngos. Please try again.")
     } finally {
       setLoadingNgos(false)
     }
@@ -68,8 +68,8 @@ export function CreateDonationForm({ role, userId }: CreateDonationFormProps) {
         throw new Error("Please fill in all required fields")
       }
 
-      if (role === "donor" && !formData.organizationId) {
-        throw new Error("Please select an organization")
+      if (role === "donor" && !formData.ngoId) {
+        throw new Error("Please select an ngo")
       }
 
       // Call backend via typed API client
@@ -86,7 +86,7 @@ export function CreateDonationForm({ role, userId }: CreateDonationFormProps) {
         amount: "",
         cause: "",
         description: "",
-        organizationId: "",
+        ngoId: "",
       })
 
       // Reset form after 2 seconds
@@ -155,23 +155,23 @@ export function CreateDonationForm({ role, userId }: CreateDonationFormProps) {
           </div>
         </div>
 
-        {/* Organization Selection (for donors) */}
+        {/* ngo Selection (for donors) */}
         {role === "donor" && (
           <div className="space-y-2">
-            <label htmlFor="organizationId" className="block text-sm font-medium text-foreground">
-              Organization *
+            <label htmlFor="ngoId" className="block text-sm font-medium text-foreground">
+              ngo *
             </label>
             <select
-              id="organizationId"
-              name="organizationId"
-              value={formData.organizationId}
+              id="ngoId"
+              name="ngoId"
+              value={formData.ngoId}
               onChange={handleInputChange}
               disabled={isLoading || loadingNgos}
               required
               className="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground"
             >
               <option value="">
-                {loadingNgos ? "Loading organizations..." : "Select an organization"}
+                {loadingNgos ? "Loading ngos..." : "Select an ngo"}
               </option>
               {ngos.map((ngo) => (
                 <option key={ngo._id} value={ngo._id}>
@@ -181,7 +181,7 @@ export function CreateDonationForm({ role, userId }: CreateDonationFormProps) {
             </select>
             {ngos.length === 0 && !loadingNgos && (
               <p className="text-sm text-muted-foreground">
-                No organizations available. Please contact support.
+                No ngos available. Please contact support.
               </p>
             )}
           </div>
@@ -226,7 +226,7 @@ export function CreateDonationForm({ role, userId }: CreateDonationFormProps) {
                 amount: "",
                 cause: "",
                 description: "",
-                organizationId: "",
+                ngoId: "",
               })
             }
           >

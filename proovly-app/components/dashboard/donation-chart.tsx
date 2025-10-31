@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card"
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts"
 
 interface DonationChartProps {
-  role: "donor" | "organization" | "admin"
+  role: "donor" | "ngo" | "admin"
 }
 
 export function DonationChart({ role }: DonationChartProps) {
@@ -19,7 +19,7 @@ export function DonationChart({ role }: DonationChartProps) {
   ]
 
   const title =
-    role === "donor" ? "Your Donation History" : role === "organization" ? "Fundraising Trends" : "Platform Donations"
+    role === "donor" ? "Your Donation History" : role === "ngo" ? "Fundraising Trends" : "Platform Donations"
 
   return (
     <Card className="p-6">

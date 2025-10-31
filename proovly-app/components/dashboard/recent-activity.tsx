@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card"
 import { Heart, TrendingUp, Users, Award } from "lucide-react"
 
 interface RecentActivityProps {
-  role: "donor" | "organization" | "admin"
+  role: "donor" | "ngo" | "admin"
 }
 
 export function RecentActivity({ role }: RecentActivityProps) {
@@ -32,11 +32,11 @@ export function RecentActivity({ role }: RecentActivityProps) {
         color: "text-purple-600",
       },
     ],
-    organization: [
+    ngo: [
       {
         icon: Users,
         title: "New Donor",
-        description: "Jane Smith donated $1,000 to your organization",
+        description: "Jane Smith donated $1,000 to your ngo",
         time: "1 hour ago",
         color: "text-blue-600",
       },
@@ -58,7 +58,7 @@ export function RecentActivity({ role }: RecentActivityProps) {
     admin: [
       {
         icon: Users,
-        title: "New Organization",
+        title: "New ngo",
         description: "Global Health Initiative registered on platform",
         time: "30 minutes ago",
         color: "text-blue-600",
@@ -82,7 +82,7 @@ export function RecentActivity({ role }: RecentActivityProps) {
 
   const currentActivities = activities[role]
   const title =
-    role === "donor" ? "Your Activity" : role === "organization" ? "Organization Activity" : "Platform Activity"
+    role === "donor" ? "Your Activity" : role === "ngo" ? "ngo Activity" : "Platform Activity"
 
   return (
     <Card className="p-6">

@@ -21,7 +21,7 @@ interface Transaction {
 }
 
 interface TransactionsListProps {
-  role: "donor" | "organization" | "admin"
+  role: "donor" | "ngo" | "admin"
   userId: string
   filters: {
     status: string

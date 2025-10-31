@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 
 interface ImpactMetricsProps {
-  role: "donor" | "organization" | "admin"
+  role: "donor" | "ngo" | "admin"
 }
 
 export function ImpactMetrics({ role }: ImpactMetricsProps) {
@@ -14,7 +14,7 @@ export function ImpactMetrics({ role }: ImpactMetricsProps) {
       { label: "Healthcare", value: 30 },
       { label: "Environment", value: 25 },
     ],
-    organization: [
+    ngo: [
       { label: "Project A", value: 65 },
       { label: "Project B", value: 45 },
       { label: "Project C", value: 80 },
@@ -28,7 +28,7 @@ export function ImpactMetrics({ role }: ImpactMetricsProps) {
 
   const currentMetrics = metrics[role]
   const title =
-    role === "donor" ? "Cause Distribution" : role === "organization" ? "Project Progress" : "Platform Metrics"
+    role === "donor" ? "Cause Distribution" : role === "ngo" ? "Project Progress" : "Platform Metrics"
 
   return (
     <Card className="p-6">

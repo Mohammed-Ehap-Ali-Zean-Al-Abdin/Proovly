@@ -12,13 +12,13 @@ import { AlertCircle, Loader2 } from "lucide-react"
 
 export function SignupForm() {
   const searchParams = useSearchParams()
-  const initialRole = (searchParams.get("role") as "donor" | "organization" | "admin") || "donor"
+  const initialRole = (searchParams.get("role") as "donor" | "ngo" | "admin") || "donor"
 
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
-  const [role, setRole] = useState<"donor" | "ngo" | "admin">(initialRole === "organization" ? "ngo" : initialRole)
+  const [role, setRole] = useState<"donor" | "ngo" | "admin">(initialRole === "ngo" ? "ngo" : initialRole)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const { signup } = useAuth()

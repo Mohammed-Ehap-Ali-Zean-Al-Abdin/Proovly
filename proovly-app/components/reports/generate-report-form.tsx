@@ -10,7 +10,7 @@ import { AlertCircle, Loader2, CheckCircle } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 
 interface GenerateReportFormProps {
-  role: "donor" | "organization" | "admin"
+  role: "donor" | "ngo" | "admin"
   userId: string
   onReportGenerated: () => void
 }
@@ -36,7 +36,7 @@ export function GenerateReportForm({ role, userId, onReportGenerated }: Generate
       { value: "tax", label: "Tax Summary" },
       { value: "detailed", label: "Detailed Transactions" },
     ],
-    organization: [
+    ngo: [
       { value: "summary", label: "Fundraising Summary" },
       { value: "impact", label: "Impact Report" },
       { value: "donor", label: "Donor Analysis" },

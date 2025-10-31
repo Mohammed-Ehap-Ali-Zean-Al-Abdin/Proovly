@@ -53,7 +53,7 @@ export default function ReportsPage() {
           <p className="text-muted-foreground mt-2">
             {user.role === "donor"
               ? "Generate and view your donation reports"
-              : user.role === "organization"
+              : user.role === "ngo"
                 ? "Create impact and fundraising reports"
                 : "Access comprehensive platform reports"}
           </p>

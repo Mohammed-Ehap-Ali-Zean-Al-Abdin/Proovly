@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card"
 import { TrendingUp, Users, Heart, DollarSign } from "lucide-react"
 
 interface StatisticsCardsProps {
-  role: "donor" | "organization" | "admin"
+  role: "donor" | "ngo" | "admin"
 }
 
 export function StatisticsCards({ role }: StatisticsCardsProps) {
@@ -39,7 +39,7 @@ export function StatisticsCards({ role }: StatisticsCardsProps) {
         color: "bg-blue-50 text-blue-600",
       },
     ],
-    organization: [
+    ngo: [
       {
         label: "Total Raised",
         value: "$245,680",
@@ -78,7 +78,7 @@ export function StatisticsCards({ role }: StatisticsCardsProps) {
         color: "bg-blue-50 text-blue-600",
       },
       {
-        label: "Active Organizations",
+        label: "Active ngos",
         value: "50K+",
         change: "+2.3K this month",
         icon: Users,
