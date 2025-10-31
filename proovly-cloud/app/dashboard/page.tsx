@@ -8,19 +8,16 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 export default function DashboardPage() {
   const { user, loading } = useAuth()
   const router = useRouter()
-
-  useEffect(() => {
-    if (!loading && !user) router.push("/login")
-  }, [loading, user, router])
-
-  if (loading || !user) return null
-
   const [stats, setStats] = useState<{
     totalDonations: number
     totalCount: number
     chainVerifiedCount: number
     chainVerifiedPct: number
   } | null>(null)
+
+  useEffect(() => {
+    if (!loading && !user) router.push("/login")
+  }, [loading, user, router])
 
   const fetchStats = async () => {
     try {
@@ -37,6 +34,8 @@ export default function DashboardPage() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user])
+
+  if (loading || !user) return null
 
   return (
     <div className="mx-auto max-w-7xl px-6 py-10 space-y-8">

@@ -1,12 +1,11 @@
 "use client"
 
-import { useState } from "react"
+import { useState, FormEvent } from "react"
 import { useRouter } from "next/navigation"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { authAPI, tokenStorage } from "@/lib/auth"
 
 export default function LoginPage() {
   const router = useRouter()
@@ -15,13 +14,37 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
-  const onSubmit = async (e: React.FormEvent) => {
+  const onSubmit = async (e: FormEvent) => {
     e.preventDefault()
     setError(null)
     setLoading(true)
+    
     try {
-      const res = await authAPI.login(email, password)
-      tokenStorage.setTokens(res)
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api/v1"
+      const res = await fetch(`${apiUrl}/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password })
+      })
+
+      if (!res.ok) {
+        const data = await res.json()
+        throw new Error(data.error || "Login failed")
+      }
+
+      const data = await res.json()
+      
+      // Store tokens directly
+      if (typeof window !== "undefined") {
+        localStorage.setItem("access_token", data.token)
+        localStorage.setItem("user_info", JSON.stringify(data.user))
+        
+        try {
+          const payload = JSON.parse(atob(data.token.split('.')[1]))
+          localStorage.setItem("token_expires_at", String(payload.exp * 1000))
+        } catch {}
+      }
+
       router.push("/dashboard")
     } catch (err) {
       setError(err instanceof Error ? err.message : "Login failed")
