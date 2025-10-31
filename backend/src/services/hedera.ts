@@ -4,10 +4,25 @@ import { env } from '../config/env.js';
 
 export function hederaClient(): Client | null {
   const network = env.HEDERA_NETWORK || 'testnet';
-  if (!env.HEDERA_ACCOUNT_ID || !env.HEDERA_PRIVATE_KEY) return null;
-  const client = Client.forName(network);
-  client.setOperator(env.HEDERA_ACCOUNT_ID, env.HEDERA_PRIVATE_KEY);
-  return client;
+  if (!env.HEDERA_ACCOUNT_ID || !env.HEDERA_PRIVATE_KEY) {
+    // eslint-disable-next-line no-console
+    console.warn('[Hedera] Missing HEDERA_ACCOUNT_ID or HEDERA_PRIVATE_KEY; operating in mock mode');
+    return null;
+  }
+
+  try {
+    const client = Client.forName(network);
+    // Trim and sanitize the private key to avoid whitespace/newline issues
+    const privateKey = env.HEDERA_PRIVATE_KEY.trim();
+    client.setOperator(env.HEDERA_ACCOUNT_ID, privateKey);
+    // eslint-disable-next-line no-console
+    console.log(`[Hedera] Client initialized for ${network} with account ${env.HEDERA_ACCOUNT_ID}`);
+    return client;
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error('[Hedera] Failed to initialize client:', err);
+    return null;
+  }
 }
 
 export async function ensureTopic(client: Client): Promise<string> {
@@ -28,19 +43,30 @@ export async function writeHcsMessage(
   const message = JSON.stringify(payload);
   if (!client || !topicId) {
     // Mocked path
+    // eslint-disable-next-line no-console
+    console.log('[Hedera] writeHcsMessage called in mock mode (no client or topicId)');
     const txId = `mock-${Date.now()}`;
     const mirrorBase = env.HEDERA_MIRROR_BASE_URL || (env.HEDERA_NETWORK === 'mainnet'
       ? 'https://mainnet-public.mirrornode.hedera.com'
       : 'https://testnet.mirrornode.hedera.com');
     return { txId, mirrorUrl: `${mirrorBase}/api/v1/transactions/${txId}` };
   }
-  const submit = await new TopicMessageSubmitTransaction({ topicId, message }).execute(client);
-  const receipt = await submit.getReceipt(client);
-  const txId = submit.transactionId.toString();
-  const mirrorBase = env.HEDERA_MIRROR_BASE_URL || (env.HEDERA_NETWORK === 'mainnet'
-    ? 'https://mainnet-public.mirrornode.hedera.com'
-    : 'https://testnet.mirrornode.hedera.com');
-  return { txId, mirrorUrl: `${mirrorBase}/api/v1/transactions/${txId}?status=${receipt.status.toString()}` };
+
+  try {
+    const submit = await new TopicMessageSubmitTransaction({ topicId, message }).execute(client);
+    const receipt = await submit.getReceipt(client);
+    const txId = submit.transactionId.toString();
+    const mirrorBase = env.HEDERA_MIRROR_BASE_URL || (env.HEDERA_NETWORK === 'mainnet'
+      ? 'https://mainnet-public.mirrornode.hedera.com'
+      : 'https://testnet.mirrornode.hedera.com');
+    // eslint-disable-next-line no-console
+    console.log(`[Hedera] HCS message submitted: ${txId}`);
+    return { txId, mirrorUrl: `${mirrorBase}/api/v1/transactions/${txId}?status=${receipt.status.toString()}` };
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error('[Hedera] writeHcsMessage failed:', err);
+    throw err;
+  }
 }
 
 export async function submitAndLog(client: Client | null, topicId: string | undefined, payload: unknown, maxAttempts = 3) {

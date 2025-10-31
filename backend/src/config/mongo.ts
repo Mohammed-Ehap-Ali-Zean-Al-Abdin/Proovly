@@ -1,19 +1,43 @@
 import mongoose from 'mongoose';
 import { env } from './env.js';
 
+declare global {
+  // allow caching on globalThis in TS
+  // eslint-disable-next-line @typescript-eslint/naming-convention
+  var __mongooseConnectionPromise: Promise<typeof mongoose> | undefined;
+}
+
 export async function connectMongo(): Promise<void> {
   if (!env.MONGODB_URI) throw new Error('MONGODB_URI is not set');
 
   // Fail fast rather than buffer operations indefinitely
   mongoose.set('bufferCommands', false);
-  // Optional: align with modern query parsing
   mongoose.set('strictQuery', true);
 
-  await mongoose.connect(env.MONGODB_URI, {
-    serverSelectionTimeoutMS: 5000,
-    connectTimeoutMS: 5000,
-    // pool defaults are fine; can be tuned if needed
-  });
+  // Reuse the existing connection promise if present (serverless friendly)
+  if (global.__mongooseConnectionPromise) {
+    await global.__mongooseConnectionPromise;
+    return;
+  }
+
+  const connPromise = mongoose
+    .connect(env.MONGODB_URI, {
+      serverSelectionTimeoutMS: 5000,
+      connectTimeoutMS: 5000,
+    })
+    .then(() => mongoose)
+    .catch((err) => {
+      // ensure cached promise is cleared on failure
+      // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+      delete global.__mongooseConnectionPromise;
+      throw err;
+    });
+
+  // Cache the promise so subsequent cold starts reuse the connection
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  global.__mongooseConnectionPromise = connPromise;
+
+  await connPromise;
 
   // Basic visibility in logs
   mongoose.connection.on('connected', () => {

@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { AlertCircle, Loader2 } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { apiClient } from "@/lib/api-client"
+import type { User } from "@/lib/types"
 
 interface CreateDonationFormProps {
   role: "donor" | "ngo"
@@ -19,12 +20,34 @@ export function CreateDonationForm({ role, userId }: CreateDonationFormProps) {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
+  const [ngos, setNgos] = useState<User[]>([])
+  const [loadingNgos, setLoadingNgos] = useState(false)
   const [formData, setFormData] = useState({
     amount: "",
     cause: "",
     description: "",
     organizationId: "",
   })
+
+  // Fetch NGOs when component mounts (for donor role)
+  useEffect(() => {
+    if (role === "donor") {
+      fetchNgos()
+    }
+  }, [role])
+
+  const fetchNgos = async () => {
+    try {
+      setLoadingNgos(true)
+      const ngoList = await apiClient.users.list({ role: "ngo", limit: 100 })
+      setNgos(ngoList)
+    } catch (err) {
+      console.error("Failed to load NGOs:", err)
+      setError("Failed to load organizations. Please try again.")
+    } finally {
+      setLoadingNgos(false)
+    }
+  }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target
@@ -143,16 +166,24 @@ export function CreateDonationForm({ role, userId }: CreateDonationFormProps) {
               name="organizationId"
               value={formData.organizationId}
               onChange={handleInputChange}
-              disabled={isLoading}
+              disabled={isLoading || loadingNgos}
               required
               className="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground"
             >
-              <option value="">Select an organization</option>
-              <option value="org-1">Global Health Initiative</option>
-              <option value="org-2">Clean Water Foundation</option>
-              <option value="org-3">Education for All</option>
-              <option value="org-4">Environmental Protection</option>
+              <option value="">
+                {loadingNgos ? "Loading organizations..." : "Select an organization"}
+              </option>
+              {ngos.map((ngo) => (
+                <option key={ngo._id} value={ngo._id}>
+                  {ngo.name} ({ngo.email})
+                </option>
+              ))}
             </select>
+            {ngos.length === 0 && !loadingNgos && (
+              <p className="text-sm text-muted-foreground">
+                No organizations available. Please contact support.
+              </p>
+            )}
           </div>
         )}
 

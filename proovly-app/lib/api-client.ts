@@ -12,6 +12,7 @@ import type {
   Payment,
   HedTxLog,
   ApiError,
+  User,
 } from "./types"
 
 const API_BASE_URL =
@@ -273,6 +274,21 @@ class ApiClient {
     list: async (userId?: string): Promise<Payment[]> => {
       const query = userId ? `?userId=${userId}` : ""
       return this.request<Payment[]>(`/payments${query}`)
+    },
+  }
+
+  // Users endpoints
+  users = {
+    list: async (params?: { role?: string; limit?: number }): Promise<User[]> => {
+      const query = new URLSearchParams()
+      if (params?.role) query.append("role", params.role)
+      if (params?.limit) query.append("limit", String(params.limit))
+      const queryString = query.toString()
+      return this.request<User[]>(`/users${queryString ? `?${queryString}` : ""}`)
+    },
+
+    get: async (id: string): Promise<User> => {
+      return this.request<User>(`/users/${id}`)
     },
   }
 

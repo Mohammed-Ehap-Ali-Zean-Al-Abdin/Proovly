@@ -13,11 +13,13 @@ import ingestSql from './ingest_sql.js';
 import dataTokens from './data_tokens.js';
 import media from './media.js';
 import cloudinary from './cloudinary.js';
+import users from './users.js';
 
 const api = Router();
 
 api.use('/donations', donations);
 api.use('/auth', auth);
+api.use('/users', users);
 api.use('/ofd', ofd);
 api.use('/ofd-records', ofdRecords);
 api.use('/ingest', ingest);
