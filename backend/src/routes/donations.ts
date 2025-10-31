@@ -58,7 +58,7 @@ router.post('/', async (req, res, next) => {
 
     // Prepare HCS payload for immutable proof of donation
     const payload = {
-      type: 'donation_funded',
+      type: 'donation_created',
       donationId: donation._id.toString(),
       amount_usd: donation.amountUSD,
       campaign: donation.campaignId,
@@ -149,12 +149,16 @@ router.patch('/:id', requireAuth(['ngo', 'admin']), async (req, res, next) => {
     // @ts-expect-error user attached by middleware
     const user = req.user as JwtClaims;
 
+    const prevStatus = donation.status;
+    let statusChanged = false;
+
     // Validate state transition if status is being changed
     if (status && status !== donation.status) {
       if (!canTransition(donation.status, status, user.role)) {
         return res.status(403).json({ error: `Cannot transition from ${donation.status} to ${status} with role ${user.role}` });
       }
       donation.status = status;
+      statusChanged = true;
     }
 
     if (typeof recipientId !== 'undefined') {
@@ -162,6 +166,24 @@ router.patch('/:id', requireAuth(['ngo', 'admin']), async (req, res, next) => {
     }
 
     await donation.save();
+
+    // Best-effort: emit an HCS message when status changes (transparency trail)
+    if (statusChanged) {
+      try {
+        const client = hederaClient();
+        const topicId = client ? await ensureTopic(client) : undefined;
+        const hcsPayload: Record<string, any> = {
+          type: donation.status === 'funded' ? 'donation_funded' : donation.status === 'assigned' ? 'donation_assigned' : `donation_${donation.status}`,
+          donationId: donation._id.toString(),
+          from: prevStatus,
+          to: donation.status,
+          recipientId: donation.recipientId || undefined,
+          timestamp: new Date().toISOString()
+        };
+        void submitAndLog(client, topicId, hcsPayload).catch(() => {});
+      } catch {}
+    }
+
     res.json(donation.toObject());
   } catch (err) {
     next(err);

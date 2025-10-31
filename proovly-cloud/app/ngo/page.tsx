@@ -74,6 +74,19 @@ export default function NgoOpsPage() {
     }
   }
 
+  const handleFund = async (id: string) => {
+    try {
+      setRowBusy((b) => ({ ...b, [id]: true }))
+      await apiClient.donations.update(id, { status: "funded" })
+      await refresh()
+    } catch (e) {
+      console.error(e)
+      alert("Funding failed")
+    } finally {
+      setRowBusy((b) => ({ ...b, [id]: false }))
+    }
+  }
+
   const openCloudinaryWidget = async (id: string) => {
     if (!widgetLoaded || !window.cloudinary) return alert("Widget not loaded yet")
     try {
@@ -221,6 +234,20 @@ export default function NgoOpsPage() {
                       }`}>
                         {d.status.toUpperCase()}
                       </span>
+                      {d.status === 'pending' && (
+                        <Button 
+                          size="sm"
+                          onClick={() => handleFund(d._id)}
+                          disabled={rowBusy[d._id]}
+                          className="h-7 px-3 bg-yellow-600 hover:bg-yellow-700 text-white"
+                        >
+                          {rowBusy[d._id] ? (
+                            <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white"></div>
+                          ) : (
+                            'Mark as Funded'
+                          )}
+                        </Button>
+                      )}
                     </div>
                     <div className="flex items-center gap-4 text-sm text-slate-600 flex-wrap">
                       <span className="flex items-center gap-1 font-semibold text-green-600">
@@ -288,6 +315,9 @@ export default function NgoOpsPage() {
                         )}
                       </Button>
                     </div>
+                    {d.status !== 'funded' && (
+                      <p className="text-xs text-slate-500">Tip: assignment requires status to be funded first.</p>
+                    )}
                   </div>
                   
                   {/* Delivery Section */}
