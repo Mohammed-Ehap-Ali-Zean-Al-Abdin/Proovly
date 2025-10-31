@@ -1,0 +1,423 @@
+openapi: 3.0.3
+info:
+  title: Proovly Backend API
+  version: 0.1.0
+
+servers:
+  - url: http://localhost:4000
+paths:
+  /healthz:
+    get:
+      summary: Health check
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+  /api/v1/donations:
+    get:
+      summary: List donations
+      parameters:
+        - in: query
+          name: userId
+          schema: { type: string }
+          description: Filter by donor ID
+        - in: query
+          name: campaignId
+          schema: { type: string }
+          description: Filter by campaign ID
+        - in: query
+          name: status
+          schema: { type: string, enum: [pending, funded, assigned, delivered] }
+          description: Filter by status
+      responses:
+        '200':
+          description: Array of donations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+    post:
+      summary: Create a donation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [donorId, campaignId, amountUSD]
+              properties:
+                donorId:
+                  type: string
+                campaignId:
+                  type: string
+                amountUSD:
+                  type: number
+                currency:
+                  type: string
+                  enum: [USD, OFD, HBAR]
+            example:
+              donorId: "507f1f77bcf86cd799439011"
+              campaignId: "507f191e810c19729de860ea"
+              amountUSD: 100
+              currency: USD
+      responses:
+        '201':
+          description: Created
+  /api/v1/donations/{id}:
+    get:
+      summary: Get donation by id
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+    delete:
+      summary: Delete a donation
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Deleted successfully
+        '404':
+          description: Not found
+  /api/v1/auth/signup:
+    post:
+      summary: Create a user account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, email, password]
+              properties:
+                name: { type: string }
+                email: { type: string, format: email }
+                password: { type: string, format: password }
+                role: { type: string, enum: [donor, ngo, admin] }
+      responses:
+        '201': { description: Created }
+        '400': { description: Missing fields }
+        '409': { description: Email exists }
+  /api/v1/auth/login:
+    post:
+      summary: Login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email: { type: string, format: email }
+                password: { type: string, format: password }
+      responses:
+        '200': { description: OK }
+        '401': { description: Invalid credentials }
+  /api/v1/ofd/mint:
+    post:
+      summary: Mint OFD tokens (admin)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [tokenId, amount]
+              properties:
+                tokenId: { type: string }
+                amount: { type: number }
+      responses:
+        '200': { description: OK }
+        '400': { description: Missing fields }
+        '503': { description: Hedera not configured }
+  /api/v1/ofd/transfer:
+    post:
+      summary: Transfer OFD tokens (admin)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [tokenId, fromAccount, toAccount, amount]
+              properties:
+                tokenId: { type: string }
+                fromAccount: { type: string }
+                toAccount: { type: string }
+                amount: { type: number }
+      responses:
+        '200': { description: OK }
+        '400': { description: Missing fields }
+        '503': { description: Hedera not configured }
+  /api/v1/ingest/csv:
+    post:
+      summary: Ingest donations CSV (NGO/admin)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '202': { description: Accepted }
+        '400': { description: file required }
+  /api/v1/ingest/sql:
+    post:
+      summary: Ingest data via SQL query (admin)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [connectionString, query]
+              properties:
+                connectionString: { type: string, description: PostgreSQL connection string }
+                query: { type: string, description: SQL query to execute }
+            example:
+              connectionString: postgresql://user:pass@localhost:5432/postgres
+              query: select 1 as x
+      responses:
+        '202': { description: Accepted; hash published to HCS }
+        '400': { description: Missing fields }
+        '502': { description: SQL query failed }
+        '503': { description: SQL connector not installed }
+  /api/v1/analytics/summary:
+    get:
+      summary: Analytics summary
+      parameters:
+        - in: query
+          name: from
+          schema: { type: string }
+        - in: query
+          name: to
+          schema: { type: string }
+        - in: query
+          name: region
+          schema: { type: string }
+      responses:
+        '200': { description: OK }
+  /api/v1/analytics/generate-daily-hash:
+    post:
+      summary: Generate daily CSV hash (admin)
+      security:
+        - bearerAuth: []
+      responses:
+        '200': { description: OK }
+
+  /api/v1/analytics/contract/put-hash:
+    post:
+      summary: Store analytics hash in HSCS contract (admin)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [key, hash]
+              properties:
+                key: { type: string }
+                hash: { type: string }
+            example:
+              key: daily:2025-01-31
+              hash: 0b9a7f1e0b3e6b1a5c4d2f8a7e9c0d1b2a3f4e5d6c7b8a9f0e1d2c3b4a59687a
+      responses:
+        '200': { description: OK }
+
+  /api/v1/analytics/contract/get-hash:
+    get:
+      summary: Retrieve analytics hash from HSCS contract (admin)
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: key
+          required: true
+          schema: { type: string }
+          example: daily:2025-01-31
+      responses:
+        '200': { description: OK }
+
+  /api/v1/ofd/positions:
+    post:
+      summary: Open a new collateralized position
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [userId, collateralSymbol]
+              properties:
+                userId: { type: string }
+                collateralSymbol: { type: string }
+      responses:
+        '201': { description: Created }
+
+  /api/v1/ofd/positions/{id}:
+    get:
+      summary: Get position by id
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: OK }
+
+  /api/v1/ofd/positions/{id}/deposit:
+    post:
+      summary: Deposit collateral
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [amount]
+              properties:
+                amount: { type: number }
+      responses:
+        '200': { description: OK }
+
+  /api/v1/ofd/positions/{id}/mint:
+    post:
+      summary: Mint OFD against collateral
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [amount]
+              properties:
+                amount: { type: number }
+      responses:
+        '200': { description: OK }
+
+  /api/v1/ofd/positions/{id}/repay:
+    post:
+      summary: Repay OFD debt
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [amount]
+              properties:
+                amount: { type: number }
+      responses:
+        '200': { description: OK }
+
+  /api/v1/ofd/positions/{id}/withdraw:
+    post:
+      summary: Withdraw collateral if CR remains healthy
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [amount]
+              properties:
+                amount: { type: number }
+      responses:
+        '200': { description: OK }
+
+  /api/v1/payments:
+    post:
+      summary: Make an OFD payment (simulated or HTS transfer)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [amountOFD]
+              properties:
+                fromAccount: { type: string }
+                toAccount: { type: string }
+                amountOFD: { type: number }
+                ofdTokenId: { type: string }
+      responses:
+        '201': { description: Created }
+
+  /api/v1/data-tokens:
+    post:
+      summary: Create a dataset NFT token (admin)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, symbol, metadataUri]
+              properties:
+                name: { type: string }
+                symbol: { type: string }
+                metadataUri: { type: string }
+            example:
+              name: Health Claims 2024 EU
+              symbol: HCEU24
+              metadataUri: ipfs://bafy.../metadata.json
+      responses:
+        '201': { description: Created }
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+

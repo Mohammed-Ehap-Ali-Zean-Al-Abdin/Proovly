@@ -1,0 +1,59 @@
+@import "tailwindcss";
+
+/* Base styles without @apply to avoid linter at-rule errors */
+* {
+  border-color: hsl(var(--border));
+}
+body {
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+}
+
+:root {
+  /* Brand palette extracted from logo (deep navy + mid blue) */
+  --background: 0 0% 100%;
+  --foreground: 222 47% 11%;
+  --card: 0 0% 100%;
+  --card-foreground: 222 47% 11%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 222 47% 11%;
+  /* Primary ~ #2B5EA8 (mid blue) */
+  --primary: 215 65% 40%;
+  --primary-foreground: 210 40% 98%;
+  /* Secondary ~ #0B1D40 (deep navy, very light background variant) */
+  --secondary: 215 25% 92%;
+  --secondary-foreground: 222 47% 11%;
+  --muted: 215 25% 92%;
+  --muted-foreground: 215 16% 47%;
+  --accent: 215 25% 92%;
+  --accent-foreground: 222 47% 11%;
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 210 40% 98%;
+  --border: 214 32% 91%;
+  --input: 214 32% 91%;
+  --ring: 215 65% 40%;
+  --radius: 0.5rem;
+}
+
+.dark {
+  --background: 222 63% 6%;
+  --foreground: 210 40% 98%;
+  --card: 222 63% 6%;
+  --card-foreground: 210 40% 98%;
+  --popover: 222 63% 6%;
+  --popover-foreground: 210 40% 98%;
+  /* Lighter, more saturated primary for dark mode */
+  --primary: 215 70% 60%;
+  --primary-foreground: 222 63% 6%;
+  --secondary: 218 28% 18%;
+  --secondary-foreground: 210 40% 98%;
+  --muted: 218 28% 18%;
+  --muted-foreground: 215 20% 65%;
+  --accent: 218 28% 18%;
+  --accent-foreground: 210 40% 98%;
+  --destructive: 0 62% 31%;
+  --destructive-foreground: 210 40% 98%;
+  --border: 218 28% 18%;
+  --input: 218 28% 18%;
+  --ring: 215 70% 60%;
+}
