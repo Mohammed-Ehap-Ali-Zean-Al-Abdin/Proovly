@@ -33,8 +33,21 @@ export default function NgoOpsPage() {
     if (!loading && !user) router.push("/login")
   }, [loading, user, router])
 
+  const refresh = async () => {
+    setBusy(true)
+    try {
+      const list = await apiClient.donations.list({ status: status || undefined })
+      setDonations(list)
+    } finally {
+      setBusy(false)
+    }
+  }
+
   useEffect(() => {
-    if (!loading && user) refresh()
+    if (!loading && user) {
+      refresh()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loading, user])
 
   // Load Cloudinary Upload Widget script
@@ -49,16 +62,6 @@ export default function NgoOpsPage() {
       setWidgetLoaded(true)
     }
   }, [])
-
-  const refresh = async () => {
-    setBusy(true)
-    try {
-      const list = await apiClient.donations.list({ status: status || undefined })
-      setDonations(list)
-    } finally {
-      setBusy(false)
-    }
-  }
 
   const handleAssign = async (id: string) => {
     try {

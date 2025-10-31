@@ -26,14 +26,17 @@ export default function AnalyticsPage() {
     if (!loading && !user) router.push("/login")
   }, [loading, user, router])
 
-  useEffect(() => {
-    if (!loading && user) fetchSummary()
-  }, [loading, user])
-
   const fetchSummary = async () => {
     const s = await apiClient.analytics.summary({ from, to, region })
     setSummary(s)
   }
+
+  useEffect(() => {
+    if (!loading && user) {
+      fetchSummary()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading, user])
 
   const handleGenerateHash = async () => {
     try {

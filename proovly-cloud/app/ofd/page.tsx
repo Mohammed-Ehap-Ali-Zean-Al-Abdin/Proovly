@@ -24,10 +24,6 @@ export default function OFDPage() {
     if (!loading && !user) router.push("/login")
   }, [loading, user, router])
 
-  useEffect(() => {
-    if (!loading && user) refreshLogs()
-  }, [loading, user])
-
   const refreshLogs = async () => {
     try {
       const list = await apiClient.transactions.list()
@@ -36,6 +32,13 @@ export default function OFDPage() {
       console.error(e)
     }
   }
+
+  useEffect(() => {
+    if (!loading && user) {
+      refreshLogs()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading, user])
 
   const handleMint = async () => {
     try {

@@ -22,12 +22,6 @@ export default function DashboardPage() {
     chainVerifiedPct: number
   } | null>(null)
 
-  useEffect(() => {
-    if (user) {
-      fetchStats()
-    }
-  }, [user])
-
   const fetchStats = async () => {
     try {
       const summary = await (await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api/v1'}/analytics/summary`)).json()
@@ -36,6 +30,13 @@ export default function DashboardPage() {
       console.error('Failed to fetch stats:', err)
     }
   }
+
+  useEffect(() => {
+    if (user) {
+      fetchStats()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user])
 
   return (
     <div className="mx-auto max-w-7xl px-6 py-10 space-y-8">
