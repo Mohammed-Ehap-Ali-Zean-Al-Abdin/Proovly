@@ -2,6 +2,18 @@
 
 One line: Verifiable donation transparency for donors and NGOs, powered by Hedera (HCS/HTS) with media proofs and analytics.
 
+## 🎥 Demo Video
+Watch the full walkthrough: [Proovly Demo on YouTube](https://youtu.be/9Vnjg7SQsXw?si=D1DemLQ5uvEN8GgD)
+
+## 🏆 Hedera Certification
+Hedera Hashgraph Developer Certification: [View Certificate](https://certs.hashgraphdev.com/a7b7a52d-c203-4afe-a3d8-8f4913a6e978.pdf)
+
+## 🌐 Live Deployment
+- **Landing Page:** [https://proovly.org](https://proovly.org)
+- **Donor Portal:** [https://proovly.app](https://proovly.app)
+- **NGO Portal:** [https://proovly.cloud](https://proovly.cloud)
+- **API & Docs:** [https://api.proovly.app/api-docs](https://api.proovly.app/api-docs)
+
 ## Problem Statement
 
 Trust in donations is fragile. Donors want verifiable impact, NGOs need simple tools to prove delivery, and auditors require canonical, immutable records. Traditional systems are siloed, opaque, and media evidence is rarely tamper-evident.
@@ -100,14 +112,14 @@ Environment (minimal):
 	- CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET
 	- HEDERA_ACCOUNT_ID, HEDERA_PRIVATE_KEY, HCS_TOPIC_ID (optional, created on demand)
 - proovly-app/.env.local
-	- NEXT_PUBLIC_API_URL=http://localhost:4000/api/v1
+	- NEXT_PUBLIC_API_URL=https://api.proovly.app/api/v1 (production) or http://localhost:4000/api/v1 (local)
 - proovly-cloud/.env.local
-	- NEXT_PUBLIC_API_URL=http://localhost:4000/api/v1
+	- NEXT_PUBLIC_API_URL=https://api.proovly.app/api/v1 (production) or http://localhost:4000/api/v1 (local)
 - proovly-org/.env.local
-	- NEXT_PUBLIC_DONOR_PORTAL_URL=http://localhost:3000
-	- NEXT_PUBLIC_NGO_PORTAL_URL=http://localhost:3001
-	- NEXT_PUBLIC_API_DOCS_URL=http://localhost:4000/api-docs
-	- NEXT_PUBLIC_API_URL=http://localhost:4000/api/v1
+	- NEXT_PUBLIC_DONOR_PORTAL_URL=https://proovly.app (production) or http://localhost:3000 (local)
+	- NEXT_PUBLIC_NGO_PORTAL_URL=https://proovly.cloud (production) or http://localhost:3001 (local)
+	- NEXT_PUBLIC_API_DOCS_URL=https://api.proovly.app/api-docs (production) or http://localhost:4000/api-docs (local)
+	- NEXT_PUBLIC_API_URL=https://api.proovly.app/api/v1 (production) or http://localhost:4000/api/v1 (local)
 
 Run locally (suggested ports):
 ```bash
@@ -127,7 +139,8 @@ cd ../proovly-org && PORT=3002 pnpm dev
 ## API Docs (Swagger)
 
 Swagger UI is served from the backend:
-- Local: http://localhost:4000/api-docs
+- **Production:** [https://api.proovly.app/api-docs](https://api.proovly.app/api-docs)
+- **Local:** http://localhost:4000/api-docs
 
 Selected endpoints:
 - Auth: POST /api/v1/auth/signup, POST /api/v1/auth/login
