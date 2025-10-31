@@ -8,6 +8,7 @@ import fs from 'fs';
 import YAML from 'yaml';
 import { corsOptions } from './config/cors.js';
 import api from './routes/index.js';
+import { ensureDbReady } from './middleware/dbReady.js';
 
 const app = express();
 
@@ -23,7 +24,7 @@ app.get('/healthz', (_req, res) => {
 // Note: DB connection is started by `src/server.ts` when running the app.
 
 // API routes
-app.use('/api/v1', api);
+app.use('/api/v1', ensureDbReady, api);
 
 // OpenAPI docs
 // Resolve from current working directory; when running inside backend/, this will be backend/openapi/openapi.yaml

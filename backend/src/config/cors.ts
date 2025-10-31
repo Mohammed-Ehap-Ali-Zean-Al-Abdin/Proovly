@@ -13,6 +13,7 @@ const defaultOrigins = [
   'https://proovly.app',
   'https://www.proovly.app',
   'https://api.proovly.app',
+  'https://www.api.proovly.app',
   'https://proovly.cloud',
   'https://www.proovly.cloud',
   'https://proovly.org',
